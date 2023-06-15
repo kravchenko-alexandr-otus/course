@@ -1,7 +1,9 @@
+//IMPORTS
 const fs = require('fs')
 const mod_path = require('path')
+const argv = require('minimist')(process.argv.slice(2))
 
-const depth = 1000000
+const maxDepth = 1000000
 
 const DRAW_SYMBLOS = {
     EMPTY: '',
@@ -18,8 +20,8 @@ function picture(filename, path, currentDepth, precedingSymbols, isLast, depth){
     const isFile = !isDirectory
     const lines = []
 
-    //Condition to end recursion
-    if(currentDepth > depth){
+    //Condition to end recursion if currentDepth is too big
+    if(currentDepth > maxDepth){
         return lines
     }
 
@@ -31,14 +33,16 @@ function picture(filename, path, currentDepth, precedingSymbols, isLast, depth){
         line.push(isLast ? DRAW_SYMBLOS.LAST_BRANCH : DRAW_SYMBLOS.BRANCH)
     }
 
+    //Push filename and line
     line.push(filename)
     lines.push(line.join(''))
 
-
+    //Return if we find file
     if(isFile) return lines
 
     let dirContent = fs.readdirSync(path)
 
+    //Search inside directory
     dirContent.forEach((element, index) => {
         const isCurrentTheLast = index === dirContent.length - 1
         const linesForDir = picture(element, mod_path.join(path, element), currentDepth+1,
@@ -59,4 +63,4 @@ function main_tree(path, depth){
     ).join('\n')
 }
 
-console.log(main_tree('/home', 3))
+console.log(main_tree('/home', argv["d"]))
